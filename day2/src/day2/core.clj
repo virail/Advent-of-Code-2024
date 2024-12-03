@@ -32,6 +32,14 @@
         pairs (partition 2 1 current)]
         (every? #(check-pair (first %) (second %) direction) pairs)))
 
+(defn check-line-with-removal
+  [line]
+  (let [current (process-line line)]
+    (some true?
+          (for [i (range (count current))]
+            (let [modified (concat (subvec current 0 i) (subvec current (inc i)))]
+              (check-line (str/join " " modified)))))))
+
 ;; if decrementing then we need to make sure its within bounds of 1 <= dec <= 3
 
 (defn -main
@@ -39,7 +47,8 @@
   [& args]
   (let [reports (slurp "resources/reports.txt")
         split-reports (str/split-lines reports)
-        valid-lines (filter check-line split-reports)]
+        valid-lines (filter #(or (check-line %)
+                                 (check-line-with-removal %)) split-reports)]
     (println "Number of valid lines:" (count valid-lines))))
 
 ;; Now we have to check and see if removing a singular element in a line will allow it to pass
